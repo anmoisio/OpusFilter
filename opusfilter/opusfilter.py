@@ -674,7 +674,7 @@ class OpusFilter:
     def sort_files(self, parameters, overwrite=False):
         """Sort file(s) by values read from other file"""
         self._check_extra_parameters(
-            {'inputs', 'outputs', 'key', 'type', 'values', 'combine_operator', 'reverse'}, parameters)
+            {'inputs', 'outputs', 'key', 'type', 'values', 'order', 'combine_operator', 'reverse'}, parameters)
         outfiles = [os.path.join(self.output_dir, fname) for fname in parameters['outputs']]
         infiles = [os.path.join(self.output_dir, fname) for fname in parameters['inputs']]
         if len(outfiles) != len(infiles):
@@ -700,6 +700,11 @@ class OpusFilter:
             with file_open(outfile, 'w') as fobj:
                 for idx in tqdm(order):
                     fobj.write(lines[idx] + '\n')
+        if 'order' in parameters:
+            orderfile = os.path.join(self.output_dir, parameters['order'])
+            with file_open(orderfile, 'w') as fobj:
+                for idx in tqdm(order):
+                    fobj.write(str(idx) + '\n')
 
     def join_scores(self, parameters, overwrite=False):
         """Join score files

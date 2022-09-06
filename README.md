@@ -849,6 +849,7 @@ Parameters:
 * `inputs`: input files to sort
 * `outputs`: sorted output files
 * `values`: input file for values used in sorting
+* `order`: output file for the new order, each line contains the original line number (optional; by default no file is created)
 * `reverse`: `true` for descending sort (optional; default `false`)
 * `key`: if values file contain JSON objects, use the key to select field (optional; default `null`)
 * `type`: force type conversion for the value (optional; `float`, `int`, `str`, or default `null`)

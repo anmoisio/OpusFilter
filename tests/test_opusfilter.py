@@ -280,6 +280,7 @@ class TestSort(unittest.TestCase):
             'outputs': [os.path.join(self.tempdir, 'rank_output_src'),
                         os.path.join(self.tempdir, 'rank_output_tgt'),
                         os.path.join(self.tempdir, 'ranks_output')],
+            'order': os.path.join(self.tempdir, 'order_output'),
             'reverse': False}
         self.opus_filter.sort_files(parameters)
         with open(os.path.join(self.tempdir, 'rank_output_src')) as f:
@@ -288,6 +289,8 @@ class TestSort(unittest.TestCase):
             self.assertEqual(f.read(), 'Sentence4\nSentence3\nSentence2\nSentence1\n')
         with open(os.path.join(self.tempdir, 'ranks_output')) as f:
             self.assertEqual(f.read(), '0\n0.5\n2\n10\n')
+        with open(os.path.join(self.tempdir, 'order_output')) as f:
+            self.assertEqual(f.read(), '1\n0\n2\n3\n')
 
     def test_sort_files_reverse(self):
         parameters = {
