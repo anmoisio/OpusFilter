@@ -916,7 +916,7 @@ class OpusFilter:
     def remove_duplicates(self, parameters, overwrite=False):
         """Remove duplicates from parallel lines in files"""
         self._check_extra_parameters(
-            {'inputs', 'outputs', 'compare', 'hash', 'letters_only', 'lowercase', 'overlap'}, parameters)
+            {'inputs', 'outputs', 'compare', 'hash', 'letters_only', 'lowercase', 'overlap', 'removed_idcs'}, parameters)
         outfiles = [os.path.join(self.output_dir, fname) for fname in parameters['outputs']]
         infiles = [os.path.join(self.output_dir, fname) for fname in parameters['inputs']]
         if len(outfiles) != len(infiles):
@@ -940,18 +940,23 @@ class OpusFilter:
         counter = collections.Counter()
         removed_entries = 0
         total = 0
-        for lines in tqdm(zip(*infs)):
+        removed_idcs = file_open(parameters['removed_idcs'], 'w')
+        for idx, lines in enumerate(tqdm(zip(*infs))):
             total += 1
             key = hasher.apply(lines)
             if overlap:
                 if key in overlap_counter:
                     counter[key] += 1
                     removed_entries += 1
+                    removed_idcs.write(str(idx))
+                    removed_idcs.write('\n')
                     continue
             else:
                 counter[key] += 1
                 if counter[key] > 1:
                     removed_entries += 1
+                    removed_idcs.write(str(idx))
+                    removed_idcs.write('\n')
                     continue
             self._lines_to_files(lines, outfs)
         logger.info("Removed %d / %d = %.2f%% duplicate lines (duplicate types: %d)",
@@ -959,6 +964,7 @@ class OpusFilter:
                     sum(1 for c in counter.values() if c > 1))
         self._close_files(*infs)
         self._close_files(*outfs)
+        removed_idcs.close()
 
     def unzip(self, parameters, overwrite=False):
         """Unzip parallel segments joined in a single file into multiple files"""
