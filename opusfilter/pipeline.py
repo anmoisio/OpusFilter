@@ -97,6 +97,11 @@ class FilterPipeline:
             pairs = filt.filter(pairs)
         return pairs
 
+    def decisions(self, pairs):
+        """Yield decisions for sentence pairs"""
+        for pair in pairs:
+            yield [int(next(filt.decisions([pair]))) for filt in self.filters]
+
     def filterfalse(self, pairs):
         """Yield sentence pairs rejected by any of the filters
 

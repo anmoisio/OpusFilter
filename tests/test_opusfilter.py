@@ -290,7 +290,7 @@ class TestSort(unittest.TestCase):
         with open(os.path.join(self.tempdir, 'ranks_output')) as f:
             self.assertEqual(f.read(), '0\n0.5\n2\n10\n')
         with open(os.path.join(self.tempdir, 'order_output')) as f:
-            self.assertEqual(f.read(), '1\n0\n2\n3\n')
+            self.assertEqual(f.read(), '2\n1\n3\n4\n')
 
     def test_sort_files_reverse(self):
         parameters = {
@@ -901,6 +901,17 @@ class TestRemoveDuplicates(unittest.TestCase):
         self.opus_filter.remove_duplicates(parameters)
         with open(os.path.join(self.tempdir, 'output_src')) as f:
             self.assertEqual(f.read(), 'a\nb\nc\nd\ne\nf\n')
+
+    def test_removed_idcs(self):
+        parameters = {
+            'inputs': [os.path.join(self.tempdir, 'input_src'),
+                       os.path.join(self.tempdir, 'input_tgt')],
+            'outputs': [os.path.join(self.tempdir, 'output_src'),
+                        os.path.join(self.tempdir, 'output_tgt')],
+            'removed_idcs': os.path.join(self.tempdir, 'removed_idcs')}
+        self.opus_filter.remove_duplicates(parameters)
+        with open(os.path.join(self.tempdir, 'removed_idcs')) as f:
+            self.assertEqual(f.read(), '5\n6\n')
 
 
 class TestRemoveDuplicatesPreprocess(unittest.TestCase):

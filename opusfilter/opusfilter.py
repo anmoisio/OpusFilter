@@ -203,6 +203,7 @@ class OpusFilter:
             'train_alignment': self.train_alignment,
             'train_nearest_neighbors': self.train_nearest_neighbors,
             'score': self.score_data,
+            'decisions': self.make_decisions,
             'train_classifier': self.train_classifier,
             'classify': self.classify,
             'join': self.join_scores,
@@ -576,6 +577,20 @@ class OpusFilter:
         scores_gen = filter_pipe.score(self.pair_generator(*infiles))
         self._write_jsonl(scores_gen, score_out)
 
+    @ParallelWrapper({'inputs', 'output', "filters"})
+    def make_decisions(self, parameters, overwrite=False):
+        """Get decisions for data based on given filters"""
+        # no need to check extra parameters, they are checked in the parallel wrapper
+        infiles = [os.path.join(self.output_dir, fname) for fname in parameters['inputs']]
+        decisions_out = os.path.join(self.output_dir, parameters['output'])
+        if not overwrite and os.path.isfile(decisions_out):
+            logger.info("Output file exists, skipping step")
+            return
+        filter_pipe = pipeline.FilterPipeline.from_config(parameters['filters'], workdir=self.output_dir)
+        filter_pipe.chunksize = self.chunksize
+        decisions_gen = filter_pipe.decisions(self.pair_generator(*infiles))
+        self._write_jsonl(decisions_gen, decisions_out)
+
     def train_classifier(self, parameters, overwrite=False):
         """Train classifier for scored sentence pairs"""
         self._check_extra_parameters(
@@ -704,7 +719,8 @@ class OpusFilter:
             orderfile = os.path.join(self.output_dir, parameters['order'])
             with file_open(orderfile, 'w') as fobj:
                 for idx in tqdm(order):
-                    fobj.write(str(idx) + '\n')
+                    # idx + 1 to get the line number in the original file
+                    fobj.write(str(idx + 1) + '\n')
 
     def join_scores(self, parameters, overwrite=False):
         """Join score files
