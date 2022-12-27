@@ -940,7 +940,8 @@ class OpusFilter:
         counter = collections.Counter()
         removed_entries = 0
         total = 0
-        removed_idcs = file_open(parameters['removed_idcs'], 'w')
+        print('writin removed ids to', os.path.join(self.output_dir, parameters['removed_idcs']))
+        removed_idcs = file_open(os.path.join(self.output_dir, parameters['removed_idcs']), 'w')
         for idx, lines in enumerate(tqdm(zip(*infs))):
             total += 1
             key = hasher.apply(lines)
